@@ -5,6 +5,12 @@
 MainWindow::MainWindow(QJsonObject input_json,QWidget* parent)
 	: QWidget(parent)
 {
+	/*
+		Конструктор класса MainWindow, который инициализирует главное окно приложения.
+		Принимает параметры:
+		input_json: объект QJsonObject, содержащий входные данные.
+		parent: указатель на родительский виджет (по умолчанию равен nullptr)
+	 */
 	this->setWindowTitle("Password manager");
 	this->setGeometry(0, 0,700,480);
 	//this->setFixedSize(700, 480);
@@ -76,11 +82,6 @@ MainWindow::MainWindow(QJsonObject input_json,QWidget* parent)
 	user_id = input_json["id"].toInt();
 	json_data = input_json["data"].toObject();
 	active_url = QUrl();
-//	user_id = -2147483638;
-//	QFile file ("C:/Programming/qt_projects/Client/passwords.json");
-//	file.open(QIODevice::ReadOnly);
-//	json_data = QJsonDocument::fromJson(file.readAll()).object();
-
 
 	// Добавление групп паролей на левую панель
 	QJsonArray group_order = json_data["user's order"].toArray();
@@ -102,18 +103,14 @@ MainWindow::MainWindow(QJsonObject input_json,QWidget* parent)
 	connect(account_list,&QListWidget::customContextMenuRequested,this,&MainWindow::account_menu_requested);
 	connect(add_account,&QAction::triggered,this,&MainWindow::add_account_pressed);
 	connect(delete_account,&QAction::triggered,this,&MainWindow::delete_account_pressed);
-
-	connect(manager, &QNetworkAccessManager::finished, this, &MainWindow::reply_finished);
-
-}
-void MainWindow::reply_finished(QNetworkReply* reply)
-{
-	QJsonObject body (QJsonDocument::fromJson(aes128_decryption(reply->readAll().toStdString())).object());
-	qDebug() << body;
 }
 
 void MainWindow::turn_off_table()
 {
+	/*
+		Отключает возможность редактирования строк в таблице data_table.
+		Не принимает параметров и не возвращает значений.
+	*/
 	for (quint32 i = 0; i < 3; i++)
 	{
 		QTableWidgetItem* item = new QTableWidgetItem;
@@ -124,6 +121,13 @@ void MainWindow::turn_off_table()
 
 void MainWindow::change_passwords_request(QString group)
 {
+	/*
+		Отправляет запрос на изменение паролей для указанной группы на сервер.
+		Принимает параметр:
+		group: имя группы паролей, для которой нужно изменить пароли.
+		Не возвращает значений.
+	*/
+
 	QUrl url;
 	url.setScheme("http");
 	url.setHost("127.0.0.2");
@@ -145,6 +149,13 @@ void MainWindow::change_passwords_request(QString group)
 
 void MainWindow::group_selected(QListWidgetItem* item)
 {
+	/*
+		Вызывается при выборе элемента в списке групп паролей.
+		Обновляет список аккаунтов в правой панели и устанавливает активную группу.
+		Принимает параметр:
+		item: указатель на выбранный элемент списка групп паролей.
+		Не возвращает значений.
+	*/
 	if (active_group != item->text())
 	{
 		account_list->clear();
@@ -157,6 +168,13 @@ void MainWindow::group_selected(QListWidgetItem* item)
 }
 void MainWindow::account_selected(QListWidgetItem* item)
 {
+	/*
+		Вызывается при выборе элемента в списке аккаунтов.
+		Загружает данные аккаунта в таблицу data_table и устанавливает активный аккаунт и URL.
+		Принимает параметр:
+		item: указатель на выбранный элемент списка аккаунтов.
+		Не возвращает значений.
+	*/
 	if (active_account != item->text())
 	{
 		active_account = item->text();
@@ -172,6 +190,11 @@ void MainWindow::account_selected(QListWidgetItem* item)
 
 void MainWindow::confirm_pressed()
 {
+	/*
+		Вызывается при нажатии кнопки "Confirm changes".
+		Проверяет, были ли внесены изменения в данные аккаунта, и отправляет изменения на сервер при необходимости.
+		Не принимает параметров и не возвращает значений.
+	*/
 	if (!active_group.isEmpty() && !active_account.isEmpty())
 	{
 		QJsonArray new_data;
@@ -195,11 +218,21 @@ void MainWindow::confirm_pressed()
 }
 void MainWindow::open_url_pressed()
 {
+	/*
+		Вызывается при нажатии кнопки "Open URL".
+		Открывает активный URL в браузере.
+	*/
 	QDesktopServices::openUrl(active_url);
 }
 
 void MainWindow::group_menu_requested(const QPoint& pos)
 {
+	/*
+		Вызывается при вызове контекстного меню
+		Открывает контекстное меню в левой панели
+		Принимает параметр:
+		pos: координаты мыши пользователя в момент вызова меню
+	*/
 	selected_group = group_list->itemAt(pos);
 	if (selected_group)
 	{
@@ -213,6 +246,12 @@ void MainWindow::group_menu_requested(const QPoint& pos)
 
 void MainWindow::add_group_pressed()
 {
+	/*
+		Вызывается при нажатии кнопки "Add Account".
+		Открывает диалоговое окно для добавления нового аккаунта.
+		Не принимает параметров и не возвращает значений.
+	*/
+
 	bool ok = false;
 	QString group_name = QInputDialog::getText(this, "Add Group", "Enter group name:", QLineEdit::Normal, "", &ok);
 	while (ok)
@@ -253,6 +292,11 @@ void MainWindow::add_group_pressed()
 
 void MainWindow::delete_group_pressed()
 {
+	/*
+		Вызывается при выборе пункта "Delete" из контекстного меню левой панели
+		Удаляет выбранную группу и отправляет данные с запросом об удалении на сервер
+		Не принимает параметров и не возвращает значений
+	*/
 	QMessageBox::StandardButton reply;
 	reply = QMessageBox::question(this,"Confirmation","Are you sure you want to delete group \"" + selected_group->text() + "\"?");
 	if (reply == QMessageBox::Yes)
@@ -294,6 +338,13 @@ void MainWindow::delete_group_pressed()
 
 void MainWindow::account_menu_requested(const QPoint& pos)
 {
+	/*
+		Вызывается при вызове контекстного меню в правйо верхней панели
+		Открывает контекстное меню в месте, где расположен курсор пользователя
+		Принимает параметр:
+		pos: координаты мыши пользователя в момент вызова меню
+		Не возвращает значений
+	*/
 	if (!active_group.isEmpty())
 	{
 		selected_account = account_list->itemAt(pos);
@@ -309,6 +360,12 @@ void MainWindow::account_menu_requested(const QPoint& pos)
 }
 void MainWindow::add_account_pressed()
 {
+	/*
+		Вызывается при выборе действия "add account" из контекстного меню левой верхней панели
+		Добавлет новый аккаунт и отправляет на сервер запрос для добавления аккаунта
+		Не принимает параметров и не возвращает значений
+	*/
+
 	bool ok = false;
 	QString account_name = QInputDialog::getText(this,"Add account","Enter account name:",QLineEdit::Normal,"",&ok);
 	while (ok)
@@ -348,6 +405,10 @@ void MainWindow::add_account_pressed()
 
 void MainWindow::delete_account_pressed()
 {
+	/*
+		Вызывается при выборе пункта "Delete" из контекстного меню из левой верхней панели
+		Удаляет аккаунт и отправляет запрос с удалением аккаунта на сервер
+	*/
 	QString account_name = selected_account->text();
 	QMessageBox::StandardButton reply;
 	reply = QMessageBox::question(this,"Confirmation","Are you sure you want to delete account \"" + selected_account->text() + "\"?");
