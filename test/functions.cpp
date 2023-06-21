@@ -1,8 +1,16 @@
 #include "functions.h"
 
-// Функция для зашифрования строки с помощью AES-128 и ключа SuperSecretKey!
+//openai.com
 std::string aes128_encryption(const QByteArray& passwords) {
-	// Создаем контекст для шифрования
+    /*
+        Функция для зашифрования строки с помощью AES-128 и ключа SuperSecretKey!
+        Принимаемые параметр
+        passwords: массив байтов, который будет зашифрован
+        Возвращаемый параметр
+        строка, являющаяся результатом шифрования
+    */
+
+    // Создаем контекст для шифрования
 	EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
 
 	// Инициализируем контекст с алгоритмом AES-128-CBC и ключом SuperSecretKey!
@@ -38,9 +46,15 @@ std::string aes128_encryption(const QByteArray& passwords) {
 	// Возвращаем зашифрованную строку
 	return encryptedString;
 }
-
-// Функция для расшифрования строки с помощью AES-128 и ключа SuperSecretKey!
+//openai.com
 QByteArray aes128_decryption(const std::string& encryptedString) {
+    /*
+        Функция для расшифрования строки с помощью AES-128 и ключа SuperSecretKey!
+        Принимаемый параметр
+        encryptedString: зашифрованная строка, расшифрование которой будет проводиться
+        Возвращаемое значение
+        массив байт, являющийся расшифрованной строкой
+     */
 	// Создаем контекст для расшифровки
 	EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
 
@@ -83,6 +97,13 @@ QByteArray aes128_decryption(const std::string& encryptedString) {
 
 QString sha256_hash(const QString& password)
 {
+    /*
+        Преобразовывает входную строку в хэш с помощью алгоритма sha256
+        Принимаемый параметр
+        password: строка, с помощью которой будет получен хэш
+        Выходное значение
+        строка, являющаяся резльтатом хэширования входной строки
+    */
 	QByteArray data = password.toUtf8();
 
 	unsigned char hash[SHA256_DIGEST_LENGTH];
